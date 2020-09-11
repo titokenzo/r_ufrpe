@@ -105,9 +105,10 @@ tail(media_atraso)
 
 # Qual companhia teve a maior proporção de atrasos ?
 dados %>%
+  filter(DEP_DELAY_NEW>0) %>%
   group_by(Description) %>%
-  summarise(n = n(), soma = sum(DEP_DELAY_NEW)) %>%
-  mutate(freq = n / soma) %>%
+  summarise(n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
   arrange(desc(freq))
 
 # Você está encarregado de analisar um conjunto de dados que contém casos de 

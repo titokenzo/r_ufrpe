@@ -104,12 +104,30 @@ media_atraso %>% filter(media==min(media))
 tail(media_atraso)
 
 # Qual companhia teve a maior proporção de atrasos ?
-dados %>%
+qtd_atrasos <- dados %>% 
   filter(DEP_DELAY_NEW>0) %>%
   group_by(Description) %>%
-  summarise(n = n()) %>%
-  mutate(freq = n / sum(n)) %>%
-  arrange(desc(freq))
+  summarise(atrasos = n())
+
+qtd_total <- dados %>% 
+  group_by(Description) %>%
+  summarise(total = n())
+
+dados4 <- merge(x = qtd_atrasos, y = qtd_total, by = "Description", all = T)
+dados4$prop <- dados4$atrasos/dados4$total
+dados4 %>% arrange(desc(prop))
+
+dados %>%
+  group_by(Description) %>%
+  summarise(n = n(), atrasos = sum(DEP_DELAY_NEW>0)) %>%
+  mutate(prop = atrasos / n ) %>%
+  arrange(desc(prop))
+
+# "Só uma dica: use variável OP_UNIQUE_CARRIER e obtenha as ocorrências para 
+# cada companhia usando a função table(). E a proporção é uma porcentagem em 
+# relação ao total de ocorrência. A questão pede a maior proporção."
+table(dados$OP_UNIQUE_CARRIER, remove = dados$DEP_DELAY_NEW>0)
+
 
 # Você está encarregado de analisar um conjunto de dados que contém casos de 
 # tuberculose (TB) relatados entre 1995 e 2013, ordenados por país, idade e sexo.

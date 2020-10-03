@@ -1,7 +1,7 @@
 ---
-title: "Exercício 11"
+title: "Exercício 12"
 author: "Tito Kenzo"
-date: "02/10/2020"
+date: "03/10/2020"
 output: html_document
 bibliography: "entradas/ref.bib"
 ---

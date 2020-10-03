@@ -1,0 +1,195 @@
+---
+title: "Exercício 11"
+author: "Tito Kenzo"
+date: "02/10/2020"
+output: html_document
+bibliography: "entradas/ref.bib"
+---
+
+# Markdown {.tabset}
+
+**Instala e carrega as bibliotecas**
+```{r echo=T, message=F, warning=F}
+#install.packages(c("readtext","tm","wordcloud","RColorBrewer","twitteR","syuzhet"))
+library(readtext)
+library(tm)
+library(wordcloud)
+library(stringr)
+library(twitteR)
+library(syuzhet)
+library(DT)
+```
+
+## Questão 01
+Nuvem de palavra do discurso “Eu tenho um sonho” de Martin Luther King Jr. 
+Também plote as palavras mais frequentes.
+
+### Carrega o arquivo com o texto "eu_tenho_um_sonho.txt"
+```{r echo=T, message=F, warning=F}
+crude = readtext("entradas/eu_tenho_um_sonho.txt")
+```
+
+### Trata os dados do texto para um formato mais "limpo"
+```{r echo=T, message=F, warning=F}
+crude <- Corpus(VectorSource(crude), readerControl = list(reader=readPlain, language='portuguese'))
+crude <- tm_map(crude, content_transformer(removeNumbers))
+crude <- tm_map(crude, removePunctuation)
+crude <- tm_map(crude, stripWhitespace)
+crude <- tm_map(crude, tolower)
+crude <- tm_map(crude, removeWords, stopwords("portuguese"))
+```
+
+### Nuvem de palavras
+```{r echo=T, message=F, warning=F}
+wordcloud(crude, 
+          min.freq = 3, 
+          max.words = Inf, 
+          random.order = F, 
+          rot.per = 0.3, 
+          colors = c("red","blue"))
+```
+
+### Palavras mais frequentes (>5)
+```{r echo=T, message=F, warning=F}
+palavras <- as.matrix(TermDocumentMatrix(crude))
+frequencia <- sort(rowSums(palavras), decreasing = T)
+crude.gt5 <- subset(frequencia, frequencia>5)
+barplot(crude.gt5, 
+        las = 2, 
+        main = "Frequência das Palavras",
+        xlab = 'Palavras',
+        ylab = 'Quantidade',
+        col = c("red","blue"))
+```
+
+## Questão 02
+Nuvem de palavra a partir dos twitters sobre Black Live Matters. 
+Também faça uma análise de sentimentos com relação a esses twitters coletados.
+
+```{r warning=F, echo=F}
+consumer_key = "UxohDpB62VMayXiV2OqcXdc2m"
+consumer_secret = "aGhnCR0y7cLBAcdCtlJ0YZ2TGPaVhCy957hVQAEVWMbqnM74kr"
+access_token = "68778682-zkGXWBZxOcklPlRsvxuSC7t8MWoddUEm9fQY5Rsz6"
+access_secret = "jC3ixTk6ksg2KyH4lmQThzGJp5bRSvYvKepU8FjbBa1ML"
+```
+
+### Conectando ao Twitter
+```{r echo=T, message=F, warning=F}
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+```
+
+### Fazendo a busca pela expressão #BlackLiveMatters
+```{r echo=T, message=F, warning=F}
+tweets <- searchTwitter("#BlackLiveMatters", n = 300, lang = "pt-br")
+```
+
+### Limpeza dos dados
+```{r echo=T, message=F, warning=F}
+tweets <- twListToDF(tweets)
+crude <- paste(tweets$text, collapse = " ")
+crude <- Corpus(VectorSource(crude))
+crude <- tm_map(crude, tolower)
+crude <- tm_map(crude, removePunctuation)
+crude <- tm_map(crude, stripWhitespace)
+crude <- tm_map(crude, removeWords, stopwords("portuguese"))
+```
+
+### Limpando expressões para deixar somente 'texto'
+```{r echo=T, message=F, warning=F}
+crude <- tm_map(crude, function(x) gsub("http[^[:space:]]*", "", x))
+crude <- tm_map(crude, function(x) gsub("[^[:alpha:][:space:]]*", "", x))
+```
+
+### Matriz de palavras e frequência
+```{r echo=T, message=F, warning=F}
+palavras <- as.matrix(TermDocumentMatrix(crude))
+frequencia <- sort(rowSums(palavras), decreasing = TRUE)
+```
+
+### Nuvem de Palavras com frequência maior que 3
+```{r echo=T, message=F, warning=F}
+wordcloud(crude, 
+          min.freq = 3,
+          max.words = 50,
+          random.order = F,
+          rot.per = 0.3,
+          colors = c("red","blue"))
+```
+
+### Análise de Sentimentos
+```{r echo=T, message=F, warning=F}
+tweets <- tweets$text
+sentimentos <- get_nrc_sentiment(tweets)
+barplot(colSums(sentimentos), 
+        las = 2, 
+        col = rainbow(10), 
+        ylab = "Contagem", 
+        xlab = "sentimentos",
+        main = "#BlackLiveMatters”")
+```
+
+## Questão 03
+5 equações complexas usando Latex.
+
+### Avaliando Integrais
+$$\int_0^1 x \, dx = \left. \frac{x^2}{2} \right|_0^1$$
+
+### Somatório, limite, integral e derivada
+$$ \int_0^\infty e^{-st} \,
+dt = \frac{e^{-st}}{-s}
+\Bigg |_0^\infty $$
+
+### Maximum Entropy
+$$Z = \sum_n \exp \left( - \sum_k \lambda_k f_k(n) \right)$$
+
+### Fourier Series
+$$f(t) = a_0 + \sum_k  a_k \times sin(kwt + \rho_k)$$
+
+### Fourier Transform
+$$X_k = \sum_{n=0}^{N-1} x_n e^{-i.2\pi k n/N}$$
+
+### Multi-linear Regression
+$$y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n + \epsilon$$
+
+### Huber Loss Function
+$$L_{\delta}(a) = 0.5 a^2, for |a| < \delta$$
+caso contrário $$L_{\delta}(a) = \delta ( |a| - \delta/2)$$
+
+## Questão 04
+2 Figuras relacionadas a ciência de dados e 2 tabelas
+
+### Figura 01
+![R ou Python para Análise de Dados](https://i1.wp.com/www.cienciaedados.com/wp-content/uploads/2015/12/R-ou-Python-para-An%C3%A1lise-de-Dados-.jpg)
+
+### Figura 02
+![CEFET oferece cursos em ciencia de dados/](https://www.linea.gov.br/wp-content/uploads/2018/05/CefeT_1.png)
+```{r include=F, warning=F}
+library(rattle.data)
+```
+
+### Tabela cars
+```{r echo=F, warning=F}
+datatable(cars)
+```
+
+### Tabela catsM
+```{r echo=F, warning=F}
+txt <- read.csv2("entradas/catsM.csv",header = T, sep = ",", dec = ".")
+datatable(txt)
+```
+
+## Questão 05
+5 referências usando o BibTex.
+
+@Xie2016
+@Xie2020
+@Dummies
+@Zero
+@R-base
+@ggplot2
+@R-Language
+
+## References
+
+
+

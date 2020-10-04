@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/670005/d98b7534e8df420eae86825ae90be012
+bundleId: https://api.rpubs.com/api/v1/document/670005/d98b7534e8df420eae86825ae90be012
+url: http://rpubs.com/titokenzo/670005
+when: 1601758045.53165

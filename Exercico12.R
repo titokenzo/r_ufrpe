@@ -1,94 +1,240 @@
 setwd("D:/home/GoogleDrive/UFRPE/CAD 2020.3/exercicios")
 getwd()
-install.packages(c("readtext","tm","wordcloud","RColorBrewer","twitteR","syuzhet"))
-library(readtext)
-library(tm)
-library(wordcloud)
-library(stringr)
-library(twitteR)
-library(syuzhet)
 
-### Carrega o arquivo com o texto "eu_tenho_um_sonho.txt"
-crude = readtext("entradas/eu_tenho_um_sonho.txt")
+## Questão 01
+# Use os dados abaixo para gerar os gráfico. Para o segundo gráfico (barras), 
+# use a escala logarítmica e as seguintes cores: "#E6E6E6", "#666666". 
+# Além disso, os gráficos podem ser organizados com a função layout().
 
-### Trata os dados do texto para um formato mais "limpo"
-crude <- Corpus(VectorSource(crude), readerControl = list(reader=readPlain, language='portuguese'))
-crude <- tm_map(crude, content_transformer(removeNumbers))
-crude <- tm_map(crude, tolower)
-crude <- tm_map(crude, removePunctuation)
-crude <- tm_map(crude, stripWhitespace)
-crude <- tm_map(crude, removeWords, stopwords("portuguese"))
+### Gráfico 01
+MRT_1F <-c(517.1468515630205, 85.13094142168089, 30.333207896694553, 12.694776264558937, 3.3041601673945418, 1.1823111717498882, 1.1892293502386786)
+MRT_3F <-c(156.68929936163462, 11.540837783562276, 0.4512835621696538, 0.4509797929766453, 0.4502068233039181, 0.4496185276300172, 0.4543157082191288)
+MRT_5F <-c(83.90319666471157, 0.3068151086494968, 0.30522314133037304, 0.3072588968084928, 0.30655265997285697, 0.3055812715727718, 0.3053297166713006)
+MRT_10F <-c(29.55430642951759, 0.19832832665772515, 0.1971923924717474, 0.19796648905716516, 0.19615594370806338, 0.2034569237883263, 0.19617420889447737)
+MRT_15F <-c(11.317736530583566, 0.167364215666193, 0.16172168266811013, 0.16701085329580515, 0.1598052657153692, 0.1645934043532696, 0.16216563797118075)
+MRT_sem_F <-c(11.93430909937736, 0.6095414637034009, 0.6060645101029295, 0.612167181646899, 0.6146761002685637, 0.6096747087200697, 0.6125810476877268)
+clock <- c(0.1, 0.5, 1, 1.5, 2, 2.5, 3)
 
-### Matriz de palavras e frequência
-palavras <- as.matrix(TermDocumentMatrix(crude))
-frequencia <- sort(rowSums(palavras), decreasing = T)
-head(frequencia)
+plot(clock,
+     MRT_1F,
+     type = "o",
+     pch = 4,
+     col = "black",
+     xlab = "Time between Things request (seconds)",
+     ylab = "Response Time (sec.)")
+lines(clock, MRT_3F, type="o", pch=11, col="yellow")
+lines(clock, MRT_5F, type="o", pch=1, col="red")
+lines(clock, MRT_10F, type="o", pch=2, col="blue")
+lines(clock, MRT_15F, type="o", pch=5, col="pink")
+lines(clock, MRT_sem_F, type="o", pch=4, col="green")
+legend("topright",
+       pch = c(4,11,1,2,5,4),
+       col = c("black","yellow","red","blue","pink","green"),
+       legend = c("1 Fog","3 Fogs","5 Fogs","10 Fogs","15 Fogs","w/o Fogs"),
+       lty = 1)
 
-### Nuvem de palavras
-wordcloud(crude, 
-          min.freq = 3, 
-          max.words = Inf, 
-          random.order = F, 
-          rot.per = 0.3, 
-          colors = c("red","blue"))
+### Gráficos 02 a 06
+g2 <- rbind(MRT_sem_F, MRT_1F)
+g3 <- rbind(MRT_sem_F, MRT_3F)
+g4 <- rbind(MRT_sem_F, MRT_5F)
+g5 <- rbind(MRT_sem_F, MRT_10F)
+g6 <- rbind(MRT_sem_F, MRT_15F)
 
-### Palavras mais frequentes (>5)
-crude.top5 <- subset(frequencia, frequencia>5)
-barplot(crude.top5, 
-        las=2, 
-        main="Frequencia das Palavras", 
-        xlab='Palavras', 
-        ylab='Quantidade', 
-        col=c("red","blue"))
+#par(mfrow = c(3,2))
+layout(matrix(c(1,2,3,4,5,6), 3, 2, byrow = TRUE))
+
+barplot(g2,
+        beside = T,
+        xlab = "Time between Things request",
+        ylab = "Response Time (s)",
+        names.arg = clock,
+        log = "y",
+        col = c("#E6E6E6", "#666666"))
+legend("topright", col=c("#E6E6E6", "#666666"),
+       legend=c("w/o Fog","1 Fog"), pch=c(15,15))
+
+barplot(g3,
+        beside = T,
+        xlab = "Time between Things request",
+        ylab = "Response Time (s)",
+        names.arg = clock,
+        log = "y",
+        col = c("#E6E6E6", "#666666"))
+legend("topright", col=c("#E6E6E6", "#666666"),
+       legend=c("w/o Fog","3 Fogs"), pch=c(15,15))
+
+barplot(g4,
+        beside = T,
+        xlab = "Time between Things request",
+        ylab = "Response Time (s)",
+        names.arg = clock,
+        log = "y",
+        col = c("#E6E6E6", "#666666"))
+legend("topright", col=c("#E6E6E6", "#666666"), 
+       legend=c("w/o Fog","5 Fogs") ,pch=c(15,15))
+
+barplot(g5,
+        beside = T,
+        xlab = "Time between Things request",
+        ylab = "Response Time (s)",
+        names.arg = clock,
+        log = "y",
+        col = c("#E6E6E6", "#666666"))
+legend("topright", col=c("#E6E6E6","#666666"),
+       legend=c("w/o Fog","10 Fogs"), pch=c(15,15))
+
+barplot(g6,
+        beside = T,
+        xlab = "Time between Things request",
+        ylab = "Response Time (s)",
+        names.arg = clock,
+        log = "y",
+        col = c("#E6E6E6", "#666666"))
+legend("topright", col=c("#E6E6E6", "#666666"), 
+       legend=c("w/o Fog","15 Fogs"), pch=c(15,15))
 
 
-consumer_key = "<>"
-consumer_secret = "<>"
-access_token = "<>"
-access_secret = "<>"
+## Questão 02
+# Para a tabela abaixo que classifica a qualidade de refeição de acordo com 
+# categorias de preços crie um gráfico de barras empilhadas
+# par(mfrow = c(1,1))
+quality <- c("Good","Very Good","Excelent")
+mealPrice <- c("$10-19","$20-29","$30-39","$40-49")
+l1 <- c(53.8,33.9,2.6,0)
+l2 <- c(43.6,54.2,60.5,21.4)
+l3 <- c(2.6,11.9,36.8,78.6)
+dados <- rbind(l1,l2,l3)
 
-### Conectando ao Twitter
-setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
-
-### Fazendo a busca pela expressão #BlackLiveMatters
-tweets <- searchTwitter("#BlackLiveMatters", n = 300, lang = "pt-br")
-
-### Limpeza dos dados
-tweets <- twListToDF(tweets)
-crude <- paste(tweets$text, collapse = " ")
-crude <- Corpus(VectorSource(crude))
-crude <- tm_map(crude, tolower)
-crude <- tm_map(crude, removePunctuation)
-crude <- tm_map(crude, stripWhitespace)
-crude <- tm_map(crude, removeWords, stopwords("portuguese"))
-
-### Limpando expressões para deixar somente 'texto'
-crude <- tm_map(crude, function(x) gsub("http[^[:space:]]*", "", x))
-crude <- tm_map(crude, function(x) gsub("[^[:alpha:][:space:]]*", "", x))
-
-### Matriz de palavras e frequência
-palavras <- as.matrix(TermDocumentMatrix(crude))
-frequencia <- sort(rowSums(palavras), decreasing = TRUE)
-
-### Nuvem de Palavras com frequancia maior que 3
-wordcloud(crude, 
-          min.freq = 3,
-          max.words = 50,
-          random.order = F,
-          rot.per = 0.3,
-          colors = c("red","blue"))
-
-### Análise de Sentimento
-tweets <- tweets$text
-sentimentos <- get_nrc_sentiment(tweets)
-barplot(colSums(sentimentos), 
-        las = 2, 
-        col = rainbow(10), 
-        ylab = "Contagem", 
-        xlab = "sentimentos",
-        main = "#BlackLiveMatters”")
+barplot(dados,
+        beside = T,
+        names.arg = mealPrice,
+        col = rainbow(3),
+        ylab = "Percentuais",
+        ylim = c(0,100),
+        main = "Meal Price" )
+legend("topleft",legend=quality, col=rainbow(3), pch=15, title="quality Rating")
 
 ## Questão 03
+# Faça o histograma das temperaturas do mês de maio do dataset airquality. 
+# No entanto, primeiro converta as temperaturas para graus Celsius através da 
+# expressão °C = (°F − 32) / 1.8. Após isso, gere o histograma.
+# Também  adicione título, nomes de eixos, cor e curva de densidade
 
+library (dplyr)
 
+dados <- airquality %>% filter(Month == 5)
+dados$Temp <- (dados$Temp - 32) /1.8
 
+hist(dados$Temp,
+     col = rainbow(10),
+     density = 80,
+     probability = T,
+     main = "Temperaturas - Maio",
+     ylab = "Densidade",
+     xlab = "Temperaturas")
+lines(density(dados$Temp), col="black")
+
+## Questão 04
+# Crie um gráfico de pizza com a porcentagem da tabela total de vendas por país.
+# Use o dataset abaixo. Inclua a porcentagem de cada fatia, as cores das fatias
+# e o nome do gráfico. 
+# Adicionalmente, use o comando legend() para incluir a legenda do gráfico.
+
+sales <- read.table("https://training-course-material.com/images/8/8f/Sales.txt",header=TRUE)
+qtd <- nrow(sales)
+pct <- round(sales$SALES / sum(sales$SALES) * 100,2)
+lbls <- paste(pct, "%", sep="")
+
+pie(x = sales$SALES,
+    labels = lbls,
+    main = "Vendas por País",
+    col = rainbow(qtd))
+legend("bottomleft", col=rainbow(qtd), pch=15, legend=sales$COUNTRY, title="País")
+
+## Questão 05
+# Utilize os dados de contagens de insetos em unidades experimentais agrícolas 
+# tratados com inseticidas diferentes disponível no R em InsectSprays e construa
+# um boxplot sem a presença dos outliers para os 6 tipos de inseticidas. 
+# Coloque título e nomes de eixos adequados. 
+# Além disso, as caixas devem ser preenchidas com a cor “yellow”
+dados <- InsectSprays
+boxplot(dados$count ~ dados$spray,
+        xlab = "Tipos de Inseticidas",
+        ylab = "Quantidade",
+        col = "yellow",
+        outline = F,
+        main = "Quantidade de Insetos por Tipo de Inseticida")
+
+## Questão 06
+# Utilizando o dataset mtcars, faça um gráfico de dispersão do peso do carro (wt)
+# em relação as milhas percorridas (mpg). Coloque título, legenda e nomes nos 
+# eixos. Também adicione a linha de tendência utilizando a função abline()
+dados <- mtcars
+
+plot(dados$wt,
+     dados$mpg,
+     main = "Peso por Milhas Percorridas",
+     xlab = "Peso",
+     ylab = "Milhas Percorridas",
+     col = dados$cyl,
+     pch = 17, 
+     cex = 1)
+abline(lm(dados$mpg ~ dados$wt), col="red")
+legend("topright", 
+       legend = unique(dados$cyl), 
+       col = unique(dados$cyl), 
+       pch = 17, 
+       title = "Cilindros")
+
+## Questão 07
+# Gere os gráficos abaixo a partir dos seguintes dados:
+# monitoringCloudData_0.1.csv, monitoringCloudData_0.5.csv, 
+# monitoringCloudData_1.csv e monitoringCloudData_NONE.csv. 
+# Esse dados consistem de informações de monitoramento dos recursos de uma 
+# máquina virtual. Basicamente, é necessário gerar gráficos de linha do tempo 
+# de coleta dos recursos (currentTime) em relação a memória usada (usedMemory).
+# Porém, é necessário ajustar a coluna “currentTime” para que o tempo fique 
+# contínuo e a coluna “usedMemory” para que todas as informações fiquem 
+# megabytes. Por fim, use a função layout() para organizar os gráficos
+install.packages("anytime")
+library(anytime)
+library(tidyr)
+library(dplyr)
+
+f1 <- read.csv2(file="entradas/monitoringCloudData_NONE.csv", sep=",")
+f2 <- read.csv2(file="entradas/monitoringCloudData_0.1.csv", sep=",")
+f3 <- read.csv2(file="entradas/monitoringCloudData_0.5.csv", sep=",")
+f4 <- read.csv2(file="entradas/monitoringCloudData_1.csv", sep=",")
+
+# Convertendo tudo de usedMemory para MB
+f1 <- f1 %>%  separate(col="usedMemory", into=c("usedMemory","umUnit"), sep=-2)
+f2 <- f2 %>%  separate(col="usedMemory", into=c("usedMemory","umUnit"), sep=-2)
+f3 <- f3 %>%  separate(col="usedMemory", into=c("usedMemory","umUnit"), sep=-2)
+f4 <- f4 %>%  separate(col="usedMemory", into=c("usedMemory","umUnit"), sep=-2)
+
+f1$usedMemory <- as.double(f1$usedMemory) 
+f2$usedMemory <- as.double(f2$usedMemory) 
+f3$usedMemory <- as.double(f3$usedMemory) 
+f4$usedMemory <- as.double(f4$usedMemory) 
+
+f1$usedMemory[f1$umUnit=="GB"] <- f1$usedMemory[f1$umUnit=="GB"]*1024
+f2$usedMemory[f2$umUnit=="GB"] <- f2$usedMemory[f2$umUnit=="GB"]*1024
+f3$usedMemory[f3$umUnit=="GB"] <- f3$usedMemory[f3$umUnit=="GB"]*1024
+f4$usedMemory[f4$umUnit=="GB"] <- f4$usedMemory[f4$umUnit=="GB"]*1024
+
+# Convertendo as datas de currentTime para tempo continuo
+f1$ct<-anytime(f1$currentTime)
+f2$ct<-anytime(f2$currentTime)
+f3$ct<-anytime(f3$currentTime)
+f4$ct<-anytime(f4$currentTime)
+
+f1$ct2 <- difftime(f1$ct, min(f1$ct), units = "hours")
+f2$ct2 <- difftime(f2$ct, min(f2$ct), units = "hours")
+f3$ct2 <- difftime(f3$ct, min(f3$ct), units = "hours")
+f4$ct2 <- difftime(f4$ct, min(f4$ct), units = "hours")
+
+layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE))
+plot(f1$ct2,f1$usedMemory ,type="l",main="Memory Analysis (None Workload)",xlab="Time (hour)",ylab="Used Memory (MB)",font.main=2)
+plot(f2$ct2,f2$usedMemory ,type="l",main="Memory Analysis (Workload of 0.1)",xlab="Time (hour)",ylab="Used Memory (MB)",font.main=2)
+plot(f3$ct2,f3$usedMemory ,type="l",main="Memory Analysis (Workload of 0.5)",xlab="Time (hour)",ylab="Used Memory (MB)",font.main=2)
+plot(f4$ct2,f4$usedMemory ,type="l",main="Memory Analysis (Workload of 1.0)",xlab="Time (hour)",ylab="Used Memory (MB)",font.main=2)
